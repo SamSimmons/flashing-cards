@@ -1,41 +1,68 @@
 package main
 
-import "fmt"
+import (
+	"github.com/jinzhu/gorm"
+	"fmt"
 
-var currentID int
+	_ "github.com/lib/pq"
+	)
 
-var todos Todos
 
-func init() {
-	RepoCreateTodo(Todo{Name: "Write presntations"})
-	RepoCreateTodo(Todo{Name: "Host meetup"})
+type Card struct {
+	ID        int       `json:"id"`
+	Front 		string 		`json:"front"`
+	Back 			string 		`json:"back"`
+}
+
+// Todos is a collection of Todo's
+type Cards []Card
+
+
+// func Init() {
+// 	db, err := gorm.Open("postgres", "host=localhost user=postgres dbname=flash_cards sslmode=disable")
+// 	if err != nil {
+// 		panic("failed to connect to db")
+// 	}
+// 	defer db.Close()
+// 	fmt.Println("db connected")
+// 	if !db.HasTable(&Card{}) {
+// 		fmt.Println("create table")
+// 		db.CreateTable(&Card{})
+// 	}
+// }
+
+func main() {
+	// Init()
+	db, err := gorm.Open("postgres", "host=localhost user=postgres dbname=flash_cards sslmode=disable")
+	if err != nil {
+		panic("failed to connect to db")
+	}
+	defer db.Close()
+	// test := Card{
+	// 	ID: 2,
+	// 	Front: "This is the front",
+	// 	Back: "da booty",
+	// }
+	// RepoCreateCard(test, *db)
+	// test := RepoFindCard(2, *db)
+	// fmt.Println(test)
+	RepoDestroyCard(2, *db)
 }
 
 // RepoFindTodo finds a todo
-func RepoFindTodo(id int) Todo {
-	for _, t := range todos {
-		if t.ID == id {
-			return t
-		}
-	}
-	return Todo{}
+func RepoFindCard(id int, db gorm.DB) Card {
+	card := Card{}
+	db.Find(&card, id)
+	return card
 }
 
-// RepoCreateTodo creates a todo
-func RepoCreateTodo(t Todo) Todo {
-	currentID++
-	t.ID = currentID
-	todos = append(todos, t)
-	return t
+// RepoCreateCard creates a card
+func RepoCreateCard(c Card, db gorm.DB) Card {
+	db.Create(&c)
+	return c
 }
 
 // RepoDestroyTodo destroys a todo
-func RepoDestroyTodo(id int) error {
-	for i, t := range todos {
-		if t.ID == id {
-			todos = append(todos[:i], todos[i+1:]...)
-			return nil
-		}
-	}
-	return fmt.Errorf("Could not find Todo with id of %d to delete", id)
+func RepoDestroyCard(id int, db gorm.DB) error {
+	
 }
