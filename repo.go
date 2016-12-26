@@ -7,62 +7,44 @@ import (
 	_ "github.com/lib/pq"
 	)
 
-
-type Card struct {
-	ID        int       `json:"id"`
-	Front 		string 		`json:"front"`
-	Back 			string 		`json:"back"`
-}
-
-// Todos is a collection of Todo's
-type Cards []Card
-
-
-// func Init() {
-// 	db, err := gorm.Open("postgres", "host=localhost user=postgres dbname=flash_cards sslmode=disable")
-// 	if err != nil {
-// 		panic("failed to connect to db")
-// 	}
-// 	defer db.Close()
-// 	fmt.Println("db connected")
-// 	if !db.HasTable(&Card{}) {
-// 		fmt.Println("create table")
-// 		db.CreateTable(&Card{})
-// 	}
-// }
-
-func main() {
-	// Init()
-	db, err := gorm.Open("postgres", "host=localhost user=postgres dbname=flash_cards sslmode=disable")
+func InitDB() {
+	var err error
+	DB, err = gorm.Open("postgres", "host=localhost user=postgres dbname=flash_cards sslmode=disable")
 	if err != nil {
 		panic("failed to connect to db")
 	}
-	defer db.Close()
-	// test := Card{
-	// 	ID: 2,
-	// 	Front: "This is the front",
-	// 	Back: "da booty",
-	// }
-	// RepoCreateCard(test, *db)
-	// test := RepoFindCard(2, *db)
-	// fmt.Println(test)
-	RepoDestroyCard(2, *db)
+	// defer DB.Close()
+	fmt.Println("db connected")
+	if !DB.HasTable(&Card{}) {
+		fmt.Println("create table")
+		DB.CreateTable(&Card{})
+	}
 }
 
 // RepoFindTodo finds a todo
-func RepoFindCard(id int, db gorm.DB) Card {
+func RepoFindCard(id string) Card {
 	card := Card{}
-	db.Find(&card, id)
+	DB.Find(&card, id)
 	return card
 }
 
+func RepoGetAllCards() Cards {
+	cards := Cards{}
+	DB.Find(&cards)
+	fmt.Println(cards)
+	return cards
+}
+
 // RepoCreateCard creates a card
-func RepoCreateCard(c Card, db gorm.DB) Card {
-	db.Create(&c)
+func RepoCreateCard(c Card) Card {
+	DB.Create(&c)
 	return c
 }
 
 // RepoDestroyTodo destroys a todo
-func RepoDestroyCard(id int, db gorm.DB) error {
-	
+func RepoDestroyCard(id int) {
+	card := Card{}
+	DB.Find(&card, id)
+	DB.Delete(&card)
+	fmt.Println(card)
 }

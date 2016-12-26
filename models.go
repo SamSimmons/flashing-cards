@@ -1,11 +1,11 @@
 package main
 
-// Todo is a model of a todo
+// Card is a model of a card
 type Card struct {
 	ID        int       `json:"id"`
 	Front 		string 		`json:"front"`
 	Back 			string 		`json:"back"`
 }
 
-// Todos is a collection of Todo's
+// Cards is a collection of Todo's
 type Cards []Card

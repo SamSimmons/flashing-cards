@@ -15,26 +15,31 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome!")
 }
 
-// TodoIndex is the handler for /todos
-func TodoIndex(w http.ResponseWriter, r *http.Request) {
-
+// CardIndex returns all cards
+func CardIndex(w http.ResponseWriter, r *http.Request) {
+	cards := RepoGetAllCards()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(todos); err != nil {
+	if err := json.NewEncoder(w).Encode(cards); err != nil {
 		panic(err)
 	}
 }
 
-// TodoShow is the handler for /todos/{todoID}
-func TodoShow(w http.ResponseWriter, r *http.Request) {
+// CardShow is the handler for /card/{cardID}
+func CardShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	todoID := vars["todoID"]
-	fmt.Fprintln(w, "Todo Show:", todoID)
+	cardID := vars["cardID"]
+	c := RepoFindCard(cardID)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(c); err != nil {
+		panic(err)
+	}
 }
 
-// TodoCreate is the handler for creating a todo
-func TodoCreate(w http.ResponseWriter, r *http.Request) {
-	var todo Todo
+// CardCreate is the handler for creating a card
+func CardCreate(w http.ResponseWriter, r *http.Request) {
+	var card Card
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -42,7 +47,7 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &todo); err != nil {
+	if err := json.Unmarshal(body, &card); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		// unprocessable entitiy
 		w.WriteHeader(422)
@@ -51,7 +56,7 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoCreateTodo(todo)
+	t := RepoCreateCard(card)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
