@@ -38,4 +38,10 @@ var routes = Routes{
 		"/cards",
 		CardCreate,
 	},
+	Route{
+		"CardDestroy",
+		"GET",
+		"/cards/{cardID}/delete",
+		CardDestroy,
+	},
 }

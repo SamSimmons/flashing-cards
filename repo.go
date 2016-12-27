@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	"fmt"
+	"errors"
 
 	_ "github.com/lib/pq"
 	)
@@ -13,19 +14,24 @@ func InitDB() {
 	if err != nil {
 		panic("failed to connect to db")
 	}
-	// defer DB.Close()
+
 	fmt.Println("db connected")
 	if !DB.HasTable(&Card{}) {
 		fmt.Println("create table")
 		DB.CreateTable(&Card{})
 	}
+	DB.AutoMigrate(&Card{})
 }
 
 // RepoFindTodo finds a todo
-func RepoFindCard(id string) Card {
+func RepoFindCard(id string) (Card, error) {
 	card := Card{}
+	fmt.Println("makes it in")
 	DB.Find(&card, id)
-	return card
+	if card.Model.ID == 0 {
+		return card, errors.New("Can't find card")
+	}
+	return card, nil
 }
 
 func RepoGetAllCards() Cards {
@@ -37,14 +43,18 @@ func RepoGetAllCards() Cards {
 
 // RepoCreateCard creates a card
 func RepoCreateCard(c Card) Card {
+	fmt.Println("coming in to db", c)
 	DB.Create(&c)
 	return c
 }
 
 // RepoDestroyTodo destroys a todo
-func RepoDestroyCard(id int) {
+func RepoDestroyCard(id string) (Card, error) {
 	card := Card{}
 	DB.Find(&card, id)
+	if card.Model.ID == 0 {
+		return card, errors.New("Can't find card")
+	}
 	DB.Delete(&card)
-	fmt.Println(card)
+	return card, nil
 }

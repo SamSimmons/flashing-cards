@@ -29,10 +29,13 @@ func CardIndex(w http.ResponseWriter, r *http.Request) {
 func CardShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	cardID := vars["cardID"]
-	c := RepoFindCard(cardID)
+	c, err := RepoFindCard(cardID)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(c); err != nil {
+	if err != nil {
+		fmt.Println(err)
+		json.NewEncoder(w).Encode(err)
+	} else if err = json.NewEncoder(w).Encode(c); err != nil {
 		panic(err)
 	}
 }
@@ -51,15 +54,33 @@ func CardCreate(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		// unprocessable entitiy
 		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
+		errMsg := ErrorMessage{Message: err}
+		if err := json.NewEncoder(w).Encode(errMsg); err != nil {
 			panic(err)
 		}
 	}
+	fmt.Println("json", json.Unmarshal(body, &card))
 
 	t := RepoCreateCard(card)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
 		panic(err)
+	}
+}
+
+func CardDestroy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	cardID := vars["cardID"]
+	c, err := RepoDestroyCard(cardID)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err != nil {
+		errMsg := ErrorMessage{Message: err}
+		json.NewEncoder(w).Encode(errMsg)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		if err = json.NewEncoder(w).Encode(c); err != nil {
+			panic(err)
+		}
 	}
 }
