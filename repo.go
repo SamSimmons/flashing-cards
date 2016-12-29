@@ -26,7 +26,6 @@ func InitDB() {
 // RepoFindTodo finds a todo
 func RepoFindCard(id string) (Card, error) {
 	card := Card{}
-	fmt.Println("makes it in")
 	DB.Find(&card, id)
 	if card.Model.ID == 0 {
 		return card, errors.New("Can't find card")

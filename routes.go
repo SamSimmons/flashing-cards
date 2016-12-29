@@ -33,9 +33,15 @@ var routes = Routes{
 		CardShow,
 	},
 	Route{
+		"HandleCors",
+		"OPTIONS",
+		"/cards/create",
+		HandleCors,
+	},
+	Route{
 		"CardCreate",
 		"POST",
-		"/cards",
+		"/cards/create",
 		CardCreate,
 	},
 	Route{
